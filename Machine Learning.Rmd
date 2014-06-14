@@ -1,0 +1,40 @@
+Machine Learning
+========================================================
+
+This is a machine learning algorithim to predict which class of exercise an individual is performing based on measurements from sensors located on variour parts of the arm.
+
+**Preprocessing**
+```{r}
+pmltraining <- read.csv("pml-training.csv") ##import the training set
+pmltesting <- read.csv("pml-testing.csv") ##import the testing set
+
+##Subset both the training and testing set to select only complete columns and excluding columns with no variability
+pmltraining <- subset(pmltraining, select=c(7:11,37:49,60:68,84:86,102,113:124,140,151:160))
+pmltesting <- subset(pmltesting, select=c(7:11,37:49,60:68,84:86,102,113:124,140,151:160))
+```
+
+```{r}
+library(randomForest)
+
+Modrf = randomForest(factor(classe) ~ ., data=pmltraining, ntree=200, nodesize=1, PROX=TRUE, oob_score=TRUE)  ##random forest
+```
+
+**Table of counts for each category A-E:**
+```{r fig.width=7, fig.height=6}
+table(predict(Modrf, pmltesting))
+```
+
+**Category for each row:**
+```{r}
+PredTable <- data.frame(predict(Modrf, pmltesting[1:20,]))
+names(PredTable) <- "classe"
+```
+
+```{r fig.width=7, fig.height=6}
+PredTable
+```
+
+**Error Rate by Number of Trees**
+```{r fig.width=7, fig.height=6}
+plot(Modrf)
+```
